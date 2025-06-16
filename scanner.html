@@ -3,125 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner Panitia</title>
+    <title>Scanner Panitia - Liem & Nita</title>
+    <!-- Tailwind CSS untuk styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk memindai QR Code -->
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
+        /* Style untuk tombol di dalam area scanner */
         #qr-reader button {
-            background-color: #2563eb !important;
+            background-color: #4f46e5 !important; /* Indigo 600 */
             color: white !important;
             border-radius: 8px !important;
             padding: 10px 15px !important;
             font-weight: 600 !important;
+            margin-top: 10px !important;
+        }
+        /* Style untuk video feed kamera */
+        #qr-reader video {
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 8px;
         }
     </style>
 </head>
-<body class="bg-slate-100">
-    <div class="max-w-lg mx-auto p-4">
-        <h1 class="text-2xl font-bold text-center my-4 text-slate-800">QR Code Check-in Tamu</h1>
-        
-        <!-- UPDATED: Button to start the camera -->
-        <div id="start-scan-container" class="text-center">
-             <button id="start-scan-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg">
-                <i class="fas fa-camera"></i>
-                <span>Buka Kamera & Mulai Scan</span>
-            </button>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md mx-auto p-4">
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h1 class="text-2xl font-bold text-center mb-2 text-slate-800">Scanner Check-in</h1>
+            <p class="text-center text-slate-500 mb-6">Arahkan kamera ke QR Code tamu</p>
+
+            <!-- Tombol untuk memulai kamera -->
+            <div id="start-container" class="text-center">
+                 <button id="start-camera-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg">
+                    <i class="fas fa-camera"></i>
+                    <span>Buka Kamera</span>
+                </button>
+            </div>
+           
+            <!-- Area untuk menampilkan video kamera -->
+            <div id="reader-container" class="w-full rounded-lg overflow-hidden hidden">
+                <div id="qr-reader"></div>
+            </div>
+
+            <!-- Tombol untuk memindai ulang -->
+             <div id="rescan-container" class="text-center hidden mt-4">
+                 <button id="rescan-button" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg">
+                    <i class="fas fa-qrcode"></i>
+                    <span>Scan Ulang</span>
+                </button>
+            </div>
+
+            <!-- Hasil pemindaian -->
+            <div id="scan-result" class="mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300"></div>
         </div>
-       
-        <!-- UPDATED: QR Reader is now hidden by default -->
-        <div id="qr-reader-container" class="w-full border-2 border-dashed rounded-lg overflow-hidden hidden">
-            <div id="qr-reader"></div>
-        </div>
-        <div id="scan-result" class="mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300"></div>
     </div>
 
     <script>
-        window.onload = function () {
-            const scanResultEl = document.getElementById('scan-result');
-            const startScanButton = document.getElementById('start-scan-button');
-            const startScanContainer = document.getElementById('start-scan-container');
-            const qrReaderContainer = document.getElementById('qr-reader-container');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Referensi elemen-elemen HTML
+            const startButton = document.getElementById('start-camera-button');
+            const startContainer = document.getElementById('start-container');
+            const readerContainer = document.getElementById('reader-container');
+            const rescanButton = document.getElementById('rescan-button');
+            const rescanContainer = document.getElementById('rescan-container');
+            const resultEl = document.getElementById('scan-result');
             
-            // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
+            // URL Google Apps Script Anda sudah terintegrasi
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRpoWs7NW74gqRtxnzZtkL8t05ysCUNHHTstpkpCSzKD9KVYrGubaQIGBTJABsa_j/exec";
 
             let html5QrcodeScanner;
 
+            // Fungsi yang dijalankan ketika QR Code berhasil dipindai
             function onScanSuccess(decodedText, decodedResult) {
                 if (!html5QrcodeScanner) return;
                 
-                try {
-                   html5QrcodeScanner.pause();
-                } catch (e) {
-                   console.warn("Could not pause scanner.", e);
-                }
-                
-                scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-orange-100 text-orange-800';
-                scanResultEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
+                // Hentikan sementara scanner dan tampilkan status proses
+                html5QrcodeScanner.pause();
+                resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg bg-orange-100 text-orange-800';
+                resultEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
+                rescanContainer.classList.remove('hidden'); // Tampilkan tombol scan ulang
 
+                // Kirim data ke Google Apps Script
                 const checkInUrl = `${SCRIPT_URL}?action=checkIn&guestId=${decodedText}`;
-
                 fetch(checkInUrl)
                     .then(res => res.json())
                     .then(data => {
-                        scanResultEl.textContent = data.message;
+                        // Tampilkan hasil dari Google Sheet
+                        resultEl.textContent = data.message;
                         if (data.status === 'success') {
-                            scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-green-100 text-green-800';
-                            navigator.vibrate(200); // Vibrate on success
+                            resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg bg-green-100 text-green-800';
+                            navigator.vibrate(200); // Beri getaran jika sukses
                         } else if (data.status === 'already_scanned') {
-                            scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-yellow-100 text-yellow-800';
-                             navigator.vibrate([100, 50, 100]); // Vibrate pattern for warning
+                            resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg bg-yellow-100 text-yellow-800';
+                             navigator.vibrate([100, 50, 100]); // Getaran berbeda untuk peringatan
                         } else {
-                             scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
+                             resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg bg-red-100 text-red-800';
                         }
                     })
                     .catch(err => {
-                        scanResultEl.textContent = 'Gagal menghubungi server. Periksa koneksi internet.';
-                        scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
-                    })
-                    .finally(() => {
-                         setTimeout(() => {
-                            if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) { // 2 is PAUSED state
-                                try {
-                                    html5QrcodeScanner.resume();
-                                } catch(e) {
-                                    console.log("Could not resume scanner.", e);
-                                }
-                                scanResultEl.textContent = '';
-                                scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300';
-                            }
-                         }, 4000);
+                        resultEl.textContent = 'Gagal menghubungi server. Periksa koneksi internet.';
+                        resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg bg-red-100 text-red-800';
                     });
             }
             
+            // Fungsi yang dijalankan ketika QR Code tidak ditemukan
             function onScanFailure(error) {
-              // Abaikan error agar tidak memenuhi konsol
+                // Tidak melakukan apa-apa agar tidak mengganggu
             }
-            
-            // Event listener for the start button
-            startScanButton.addEventListener('click', () => {
-                startScanContainer.classList.add('hidden');
-                qrReaderContainer.classList.remove('hidden');
 
-                try {
-                  if (typeof Html5QrcodeScanner !== 'undefined') {
-                      html5QrcodeScanner = new Html5QrcodeScanner(
-                          "qr-reader", 
-                          { fps: 10, qrbox: {width: 250, height: 250} },
-                          /* verbose= */ false
-                      );
-                      html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-                  } else {
-                      throw new Error("Library scanner belum termuat");
-                  }
-                } catch (err) {
-                  console.error("Gagal memulai scanner:", err);
-                  qrReaderContainer.innerHTML = '<div class="p-4 bg-red-100 text-red-700 rounded-lg">Error: Gagal memulai kamera. Mohon berikan izin kamera dan refresh halaman.</div>';
+            // Ketika tombol "Buka Kamera" diklik
+            startButton.addEventListener('click', () => {
+                startContainer.classList.add('hidden');
+                readerContainer.classList.remove('hidden');
+
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", 
+                    { 
+                        fps: 10, 
+                        qrbox: {width: 250, height: 250},
+                        // Meminta kamera belakang di HP
+                        facingMode: "environment" 
+                    },
+                    false // verbose
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            });
+
+            // Ketika tombol "Scan Ulang" diklik
+            rescanButton.addEventListener('click', () => {
+                resultEl.textContent = '';
+                resultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg';
+                rescanContainer.classList.add('hidden');
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.resume();
                 }
             });
-        };
+        });
     </script>
 </body>
 </html>
