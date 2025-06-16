@@ -8,36 +8,43 @@
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        body { font-family: sans-serif; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
         #qr-reader button {
             background-color: #2563eb !important;
             color: white !important;
             border-radius: 8px !important;
+            padding: 10px 15px !important;
+            font-weight: 600 !important;
         }
     </style>
 </head>
 <body class="bg-slate-100">
     <div class="max-w-lg mx-auto p-4">
-        <h1 class="text-2xl font-bold text-center my-4">QR Code Scanner Check-in</h1>
-        <div id="qr-reader" class="w-full border-2 border-dashed rounded-lg"></div>
+        <h1 class="text-2xl font-bold text-center my-4 text-slate-800">QR Code Check-in Tamu</h1>
+        <div id="qr-reader-container" class="w-full border-2 border-dashed rounded-lg overflow-hidden">
+            <div id="qr-reader"></div>
+        </div>
         <div id="scan-result" class="mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300"></div>
     </div>
 
     <script>
-        // Menunggu seluruh halaman dan skrip eksternal dimuat sepenuhnya
         window.onload = function () {
             const scanResultEl = document.getElementById('scan-result');
             
             // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRpoWs7NW74gqRtxnzZtkL8t05ysCUNHHTstpkpCSzKD9KVYrGubaQIGBTJABsa_j/exec";
 
-            // Variabel scanner dideklarasikan di sini agar bisa diakses di dalam onScanSuccess
             let html5QrcodeScanner;
 
             function onScanSuccess(decodedText, decodedResult) {
-                if (!html5QrcodeScanner) return; // Pemeriksaan keamanan
+                if (!html5QrcodeScanner) return;
                 
-                html5QrcodeScanner.pause();
+                try {
+                   html5QrcodeScanner.pause();
+                } catch (e) {
+                   console.warn("Could not pause scanner.", e);
+                }
+                
                 scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-orange-100 text-orange-800';
                 scanResultEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
 
@@ -49,40 +56,66 @@
                         scanResultEl.textContent = data.message;
                         if (data.status === 'success') {
                             scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-green-100 text-green-800';
+                            navigator.vibrate(200); // Vibrate on success
                         } else if (data.status === 'already_scanned') {
                             scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-yellow-100 text-yellow-800';
+                             navigator.vibrate([100, 50, 100]); // Vibrate pattern for warning
                         } else {
                              scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
                         }
                     })
                     .catch(err => {
-                        scanResultEl.textContent = 'Gagal menghubungi server.';
+                        scanResultEl.textContent = 'Gagal menghubungi server. Periksa koneksi internet.';
                         scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
                     })
                     .finally(() => {
                          setTimeout(() => {
                             if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) { // 2 is PAUSED state
-                                html5QrcodeScanner.resume();
+                                try {
+                                    html5QrcodeScanner.resume();
+                                } catch(e) {
+                                    console.log("Could not resume scanner.", e);
+                                }
+                                scanResultEl.textContent = '';
+                                scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300';
                             }
                          }, 4000);
                     });
             }
-
+            
             function onScanFailure(error) {
-              // Abaikan error ini agar tidak memenuhi konsol
+              // Abaikan error agar tidak memenuhi konsol
             }
             
             try {
-              html5QrcodeScanner = new Html5QrcodeScanner(
-                  "qr-reader", 
-                  { fps: 10, qrbox: {width: 250, height: 250} },
-                  /* verbose= */ false
-              );
-              html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+              if (typeof Html5QrcodeScanner !== 'undefined') {
+                  html5QrcodeScanner = new Html5QrcodeScanner(
+                      "qr-reader", 
+                      { fps: 10, qrbox: {width: 250, height: 250} },
+                      /* verbose= */ false
+                  );
+                  html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+              } else {
+                  throw new Error("Library scanner belum termuat");
+              }
             } catch (err) {
               console.error("Gagal memulai scanner:", err);
+              document.getElementById('qr-reader-container').innerHTML = '<div class="p-4 bg-red-100 text-red-700 rounded-lg">Error: Gagal memulai kamera. Mohon berikan izin kamera dan refresh halaman.</div>';
             }
         };
     </script>
 </body>
 </html>
+```
+
+### Cara Kerjanya
+
+1.  **Panitia Membuka `scanner.html`:** Panitia membuka file ini di browser HP mereka (misalnya, Google Chrome di Android). Browser akan meminta izin untuk menggunakan kamera.
+2.  **Scan QR Code Tamu:** Panitia mengarahkan kamera ke QR Code yang ada di e-ticket PDF tamu.
+3.  **Pengiriman Data:** Setelah QR Code terbaca, halaman scanner akan otomatis mengirimkan ID tamu yang ada di dalam QR Code ke URL Google Apps Script Anda.
+4.  **Backend Bekerja:**
+    * Fungsi `doGet` di dalam Apps Script Anda akan aktif.
+    * Script akan mencari `GuestID` tersebut di Google Sheet.
+    * Jika ditemukan, script akan mengubah tulisan di kolom `StatusCheckIn` dari "Belum di Scan" menjadi **"Sudah di Scan"**.
+    * Script akan mengirim balik pesan sukses (misalnya, "Sukses! Musalim Yusuf berhasil di-check-in.").
+5.  **Hasil Tampil di HP Panitia:** Pesan sukses tersebut akan ditampilkan di layar HP panitia, dan scanner siap untuk memindai tamu berikutn
