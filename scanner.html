@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Panitia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { font-family: sans-serif; }
+        #qr-reader button {
+            background-color: #2563eb !important;
+            color: white !important;
+            border-radius: 8px !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="max-w-lg mx-auto p-4">
+        <h1 class="text-2xl font-bold text-center my-4">QR Code Scanner Check-in</h1>
+        <div id="qr-reader" class="w-full border-2 border-dashed rounded-lg"></div>
+        <div id="scan-result" class="mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300"></div>
+    </div>
+
+    <script>
+        // Menunggu seluruh halaman dan skrip eksternal dimuat sepenuhnya
+        window.onload = function () {
+            const scanResultEl = document.getElementById('scan-result');
+            
+            // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRpoWs7NW74gqRtxnzZtkL8t05ysCUNHHTstpkpCSzKD9KVYrGubaQIGBTJABsa_j/exec";
+
+            // Variabel scanner dideklarasikan di sini agar bisa diakses di dalam onScanSuccess
+            let html5QrcodeScanner;
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (!html5QrcodeScanner) return; // Pemeriksaan keamanan
+                
+                html5QrcodeScanner.pause();
+                scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-orange-100 text-orange-800';
+                scanResultEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`;
+
+                const checkInUrl = `${SCRIPT_URL}?action=checkIn&guestId=${decodedText}`;
+
+                fetch(checkInUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        scanResultEl.textContent = data.message;
+                        if (data.status === 'success') {
+                            scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-green-100 text-green-800';
+                        } else if (data.status === 'already_scanned') {
+                            scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-yellow-100 text-yellow-800';
+                        } else {
+                             scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
+                        }
+                    })
+                    .catch(err => {
+                        scanResultEl.textContent = 'Gagal menghubungi server.';
+                        scanResultEl.className = 'mt-4 text-center font-semibold text-lg p-4 rounded-lg transition-all duration-300 bg-red-100 text-red-800';
+                    })
+                    .finally(() => {
+                         setTimeout(() => {
+                            if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2) { // 2 is PAUSED state
+                                html5QrcodeScanner.resume();
+                            }
+                         }, 4000);
+                    });
+            }
+
+            function onScanFailure(error) {
+              // Abaikan error ini agar tidak memenuhi konsol
+            }
+            
+            try {
+              html5QrcodeScanner = new Html5QrcodeScanner(
+                  "qr-reader", 
+                  { fps: 10, qrbox: {width: 250, height: 250} },
+                  /* verbose= */ false
+              );
+              html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            } catch (err) {
+              console.error("Gagal memulai scanner:", err);
+            }
+        };
+    </script>
+</body>
+</html>
