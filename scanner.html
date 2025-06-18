@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Check-In QR • Liem & Nita</title>
+  <link rel="shortcut icon" href="images/emoji.png">
 
   <!-- Tailwind CSS & Font -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -38,7 +39,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRpoWs7NW74gqRtxnzZtkL8t05ysCUNHHTstpkpCSzKD9KVYrGubaQIGBTJABsa_j/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKzMtWNH_cgKKfynWuQoYs35yl8druPP-qAOQfPdTCvem-HG4JMsSNfymq2Fq04NA5/exec";
     let html5Qr;
 
     function showMessage(text, type) {
@@ -62,7 +63,7 @@
             if (data.status === 'success')         showMessage(data.message, 'success');
             else if (data.status === 'already_scanned') showMessage(data.message, 'warning');
             else if (data.status === 'not_found')       showMessage(data.message, 'error');
-            else                               showMessage('Respon tak terduga: '+data.message, 'error');
+            else                           showMessage('Respon tak terduga: '+data.message, 'error');
           })
           .catch(e => showMessage('Error jaringan: '+e, 'error'))
           .finally(() => {
@@ -78,9 +79,7 @@
     function initScanner() {
       showMessage('', '');
       document.getElementById('restart').style.display = 'none';
-
       html5Qr = new Html5Qrcode("reader");
-      // langsung pakai kamera belakang
       html5Qr.start(
         { facingMode: { exact: "environment" } },
         { fps: 10 },
@@ -90,7 +89,6 @@
         showMessage("Gagal akses kamera: " + err, 'error');
       });
     }
-
     document.getElementById('restart').addEventListener('click', initScanner);
     window.addEventListener('load', initScanner);
   </script>
