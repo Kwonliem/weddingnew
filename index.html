@@ -228,7 +228,7 @@
         </div>
     </section>
     <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
-    <!-- UPDATED: Our Story Section -->
+    <!-- Our Story Section -->
 <section id="our-story" class="py-20 px-6">
         <div class="max-w-4xl mx-auto text-center reveal glass-section">
             <h2 class="font-script text-5xl mb-12 text-amber-100">Our Story</h2>
@@ -462,14 +462,13 @@
     </div>
 
     <script>
-        // --- All other scripts remain the same ---
         const navbar = document.getElementById('navbar');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenuIcon = document.getElementById('mobile-menu-icon');
         window.onscroll = function () { const e = 50 < document.body.scrollTop || 50 < document.documentElement.scrollTop; navbar.classList.toggle("scrolled", e), mobileMenu.classList.toggle("scrolled", e) }; mobileMenuButton.addEventListener("click", () => { const e = mobileMenu.classList.toggle("hidden"); mobileMenuIcon.classList.toggle("fa-bars", e), mobileMenuIcon.classList.toggle("fa-times", !e) }), document.querySelectorAll("#mobile-menu a, nav a[href='#']").forEach(e => { e.addEventListener("click", () => { mobileMenu.classList.contains("hidden") || (mobileMenu.classList.add("hidden"), mobileMenuIcon.classList.add("fa-bars"), mobileMenuIcon.classList.remove("fa-times")) }) }); const copyButton = document.getElementById("copy-button"), copyText = document.getElementById("copy-text"), accountNumberEl = document.getElementById("account-number"); copyButton.addEventListener("click", () => { const e = accountNumberEl.innerText, t = document.createElement("textarea"); t.value = e, t.style.position = "fixed", t.style.top = "-9999px", t.style.left = "-9999px", document.body.appendChild(t), t.select(); try { document.execCommand("copy") && (copyText.innerText = "Nomor Tersalin!", copyButton.classList.add("bg-green-600"), setTimeout(() => { copyText.innerText = "Salin Nomor Rekening", copyButton.classList.remove("bg-green-600") }, 2e3)) } catch (e) { showToast("Gagal Menyalin", "Nomor rekening gagal disalin.", "error") } document.body.removeChild(t) }); const countdownDate = new Date("Jun 08, 2026 00:00:00").getTime(), countdownInterval = setInterval(function () { const e = (new Date).getTime(), t = countdownDate - e; document.getElementById("days").innerText = Math.floor(t / 864e5), document.getElementById("hours").innerText = Math.floor(t % 864e5 / 36e5), document.getElementById("minutes").innerText = Math.floor(t % 36e5 / 6e4), document.getElementById("seconds").innerText = Math.floor(t % 6e4 / 1e3), t < 0 && (clearInterval(countdownInterval), document.getElementById("countdown").innerHTML = "<p class='text-xl'>The day is here!</p>") }, 1e3); const revealElements = document.querySelectorAll(".reveal"), revealOnScroll = () => { const e = window.innerHeight; revealElements.forEach(t => { t.getBoundingClientRect().top < e - 100 && t.classList.add("visible") }) }; window.addEventListener("scroll", revealOnScroll), revealOnScroll();
 
-        // --- UPDATED RSVP Form Logic with Google Apps Script ---
+        
         const rsvpForm = document.getElementById('rsvp-form');
         const attendanceSelect = document.getElementById('attendance');
         const guestCountWrapper = document.getElementById('guest-count-wrapper');
@@ -481,7 +480,7 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         let toastTimeout;
 
-        // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
+        
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRpoWs7NW74gqRtxnzZtkL8t05ysCUNHHTstpkpCSzKD9KVYrGubaQIGBTJABsa_j/exec";
 
         function showToast(title, message, type = 'success') {
@@ -528,7 +527,6 @@
                     } else {
                         showToast('Yahhh kok ngga hadir ?. Tapi tidak apa-apa, terima kasih sudah mengisi konfirmasi.');
                     }
-
                     rsvpForm.reset();
                     guestCountWrapper.classList.add('hidden');
                 })
