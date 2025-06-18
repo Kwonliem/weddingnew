@@ -17,21 +17,32 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #080e12;
+            background-color: #080e12; /* Warna Latar Utama */
             color: #f1f5f9;
+        }
+        
+        .bg-secondary {
+            background-color: #0f1519;
         }
 
         .font-script {
             font-family: 'Parisienne', cursive;
         }
 
+        .text-gold-theme {
+            color: #e2c08d;
+        }
+
         .reveal {
+            position: relative;
             opacity: 0;
-            transition: opacity 1.2s ease-in-out;
+            transform: translateY(50px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
 
         .reveal.visible {
             opacity: 1;
+            transform: translateY(0);
         }
 
         #toast {
@@ -70,24 +81,74 @@
             font-size: 24px;
             margin-right: 16px;
         }
+        
+        /* --- GAYA UNTUK TOAST IKLAN DIPERBARUI --- */
+        #ad-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 101;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-120%);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer; /* Menjadikan kursor pointer agar terlihat bisa diklik */
+        }
+
+        #ad-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        #ad-toast .ad-icon {
+            font-size: 2rem;
+            animation: pulse-glow 2.5s infinite ease-in-out;
+        }
+        
+        /* Tombol Close untuk Iklan */
+        .ad-toast-close-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(0,0,0,0.3);
+            color: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ad-toast-close-btn:hover {
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+            50% { transform: scale(1.1); text-shadow: 0 0 15px rgba(255, 255, 255, 1); }
+            100% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+        }
+
 
         @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(-20px);
-            }
-
-            60% {
-                transform: translateY(-10px);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
         }
 
         .animate-bounce-slow {
@@ -95,7 +156,7 @@
         }
 
         nav.scrolled {
-            background-color: rgba(8, 14, 18, 0.7);
+            background-color: rgba(8, 14, 18, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -127,27 +188,76 @@
             opacity: 1;
             pointer-events: auto;
         }
+        
+        .glass-effect {
+            background-color: rgba(41, 52, 65, 0.25); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-gold {
+            background: linear-gradient(145deg, #e2c08d, #c8a776);
+            color: #382d22;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            border: none;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(226, 192, 141, 0.3);
+        }
+        
+        .btn-gold.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .scroll-to-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(226, 192, 141, 0.5); 
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99;
+            opacity: 0;
+            transform: translateY(100px); 
+            transition: all 0.5s ease;
+        }
+
+        .scroll-to-top-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 
 <body class="antialiased">
 
-    <!-- ... (Bagian HTML dari Navbar hingga sebelum RSVP tetap sama) ... -->
+    <!-- Konten HTML lainnya tetap sama -->
     <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 pt-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 md:h-20">
                 <div class="flex-shrink-0"><a href="#" class="font-script text-2xl text-amber-100">L & N</a></div>
                 <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4"><a href="#couple"
-                            class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Us
-                            <Span>&#128145;</Span></a><a href="#our-story"
-                            class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Our
-                            Story <span>&#128107;</span></a><a href="#events"
-                            class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Events
-                            <span>&#128198;</span></a><a href="#gift"
-                            class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Gift
-                            <span>&#127873;</span></a><a href="#rsvp"
-                            class="bg-amber-800 text-white hover:bg-amber-700 px-4 py-2 rounded-md text-sm font-bold transition-colors">RSVP</a>
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#couple" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Us <Span>&#128145;</Span></a>
+                        <a href="#our-story" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Our Story <span>&#128107;</span></a>
+                        <a href="#events" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Events <span>&#128198;</span></a>
+                        <a href="#gift" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Gift <span>&#127873;</span></a>
+                        <a href="#rsvp" class="btn-gold px-4 py-2 rounded-md text-sm font-bold">RSVP</a>
                     </div>
                 </div>
                 <div class="md:hidden flex items-center"><button id="mobile-menu-button"
@@ -156,16 +266,12 @@
             </div>
         </div>
         <div id="mobile-menu" class="hidden md:hidden transition-all duration-300">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3"><a href="#couple"
-                    class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Us
-                    <Span>&#128145;</Span></a><a href="#our-story"
-                    class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Our
-                    Story <span>&#128107;</span></a><a href="#events"
-                    class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Events
-                    <span>&#128198;</span></a><a href="#gift"
-                    class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Gift
-                    <span>&#127873;</span></a><a href="#rsvp"
-                    class="bg-amber-800 text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-bold">RSVP</a>
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#couple" class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Us <Span>&#128145;</Span></a>
+                <a href="#our-story" class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Our Story <span>&#128107;</span></a>
+                <a href="#events" class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Events <span>&#128198;</span></a>
+                <a href="#gift" class="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Gift <span>&#127873;</span></a>
+                <a href="#rsvp" class="btn-gold block px-3 py-2 rounded-md text-base font-bold text-center">RSVP</a>
             </div>
         </div>
     </nav>
@@ -188,12 +294,13 @@
             </div>
         </div><a href="#invitation" class="absolute bottom-10 animate-bounce-slow"><span>&#128071;</span></a>
     </header>
+    
     <section id="invitation" class="py-20 px-6 text-center">
         <div class="max-w-3xl mx-auto reveal">
             <h2 class="font-script text-5xl mb-6 text-amber-100">Invitation</h2>
             <p class="text-slate-300 mb-6">
                 وَمِنْ اٰيٰتِهٖٓ اَنْ خَلَقَ لَكُمْ مِّنْ اَنْفُسِكُمْ اَزْوَاجًا لِّتَسْكُنُوْٓا اِلَيْهَا وَجَعَلَ
-                بَيْنَكُمْ مَّوَدَّةً وَّرَحْمَةًۗ اِنَّ فِيْ ذٰلِكَ لَاٰيٰتٍ لِّقَوْمٍ يَّتَفَكَّرُوْنَ ۝٢
+                بَيْنَكُمْ مَّوَدَّةً وَّرَحْمَةًۗ اِنَّ فِيْ ذٰلِكَ لَاٰيٰتٍ لِّقَوْمٍ يَّتَفَكَّرُوْنَ ۝٢
             </p>
             <p class="text-slate-300 mb-6">"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu
                 isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan
@@ -205,21 +312,21 @@
                 berkenan hadir untuk memberikan doa restu.</p>
         </div>
     </section>
-    <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
-    <section id="couple" class="py-20 px-6">
+    
+    <section id="couple" class="py-20 px-6 bg-secondary">
         <div class="max-w-5xl mx-auto text-center reveal">
             <h2 class="font-script text-5xl mb-12 text-amber-100">Us</h2>
             <div class="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-16">
                 <div class="flex flex-col items-center"><img src="images/holder.jpg" alt="Liem"
                         class="w-48 h-48 rounded-full object-cover border-4 border-slate-700 mb-4 transition-transform duration-300 hover:scale-110">
-                    <h3 class="font-script text-4xl text-amber-200">Liem</h3>
+                    <h3 class="font-script text-4xl text-gold-theme">Liem</h3>
                     <p class="text-slate-300 mt-2">Putra dari Bapak <span>&#129491;</span> & Ibu
                         <span>&#129493;</span>
                     </p>
                 </div><span class="font-script text-5xl text-amber-100">&</span>
                 <div class="flex flex-col items-center"><img src="images/holder.jpg" alt="Nita"
                         class="w-48 h-48 rounded-full object-cover border-4 border-slate-700 mb-4 transition-transform duration-300 hover:scale-110">
-                    <h3 class="font-script text-4xl text-amber-200">Nita</h3>
+                    <h3 class="font-script text-4xl text-gold-theme">Nita</h3>
                     <p class="text-slate-300 mt-2">Putri dari Bapak <span>&#129491;</span> & Ibu
                         <span>&#129493;</span>
                     </p>
@@ -227,62 +334,46 @@
             </div>
         </div>
     </section>
-    <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
-    <!-- Our Story Section -->
-    <section id="our-story" class="py-20 px-6">
-        <div class="max-w-4xl mx-auto text-center reveal glass-section">
-            <h2 class="font-script text-5xl mb-12 text-amber-100">Our Story</h2>
-            <!-- Timeline container -->
-            <div class="relative">
-                <!-- The vertical line (visible on medium screens and up) -->
-                <div class="hidden md:block absolute top-0 h-full w-0.5 bg-slate-700 left-1/2 -translate-x-1/2"></div>
 
+    <section id="our-story" class="py-20 px-6">
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <h2 class="font-script text-5xl mb-12 text-amber-100">Our Story</h2>
+            <div class="relative">
+                <div class="hidden md:block absolute top-0 h-full w-0.5 bg-slate-700 left-1/2 -translate-x-1/2"></div>
                 <div class="space-y-8 md:space-y-0 md:gap-y-16">
-                    <!-- Timeline Item 1 -->
-                    <div class="relative flex flex-col md:grid md:grid-cols-2 md:gap-x-12 items-center">
+                    <div class="relative flex flex-col md:grid md:grid-cols-2 md:gap-x-12 items-center reveal">
                         <div class="md:text-right">
-                            <div class="bg-slate-800/50 p-6 rounded-lg text-left inline-block">
-                                <p class="text-amber-200 font-semibold">Januari 2020</p>
+                            <div class="glass-effect p-6 rounded-lg text-left inline-block">
+                                <p class="text-gold-theme font-semibold">Januari 2020</p>
                                 <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3>
                                 <p class="text-slate-300 mt-2 text-sm">Lorem ipsum dolor sit amet consectetur.</p>
                             </div>
                         </div>
-                        <div
-                            class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
+                        <div class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900"></div>
                         <div class="md:hidden mt-4 mb-4 h-8 w-px bg-slate-700"></div>
                         <div></div>
                     </div>
-
-                    <!-- Timeline Item 2 -->
-                    <div class="relative flex flex-col-reverse md:grid md:grid-cols-2 md:gap-x-12 items-center">
+                    <div class="relative flex flex-col-reverse md:grid md:grid-cols-2 md:gap-x-12 items-center reveal">
                         <div></div>
                         <div class="md:hidden mt-4 mb-4 h-8 w-px bg-slate-700"></div>
                         <div class="md:text-left">
-                            <div class="bg-slate-800/50 p-6 rounded-lg text-left inline-block">
-                                <p class="text-amber-200 font-semibold">Desember 2023</p>
+                            <div class="glass-effect p-6 rounded-lg text-left inline-block">
+                                <p class="text-gold-theme font-semibold">Desember 2023</p>
                                 <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3>
                                 <p class="text-slate-300 mt-2 text-sm">Lorem ipsum dolor sit amet consectetur.</p>
                             </div>
                         </div>
-                        <div
-                            class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
+                        <div class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900"></div>
                     </div>
-
-                    <!-- Timeline Item 3 -->
-                    <div class="relative flex flex-col md:grid md:grid-cols-2 md:gap-x-12 items-center">
+                     <div class="relative flex flex-col md:grid md:grid-cols-2 md:gap-x-12 items-center reveal">
                         <div class="md:text-right">
-                            <div class="bg-slate-800/50 p-6 rounded-lg text-left inline-block">
-                                <p class="text-amber-200 font-semibold">Desember 2024</p>
+                            <div class="glass-effect p-6 rounded-lg text-left inline-block">
+                                <p class="text-gold-theme font-semibold">Desember 2024</p>
                                 <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3>
-                                <p class="text-slate-300 mt-2 text-sm">Lorem ipsum dolor sit amet consectetur
-                                    adipisicing elit. Quasi, aperiam.</p>
+                                <p class="text-slate-300 mt-2 text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, aperiam.</p>
                             </div>
                         </div>
-                        <div
-                            class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
+                        <div class="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900"></div>
                         <div class="md:hidden mt-4 mb-4 h-8 w-px bg-slate-700"></div>
                         <div></div>
                     </div>
@@ -290,114 +381,48 @@
             </div>
         </div>
     </section>
-    <!-- <section id="our-story" class="py-20 px-6">
-        <div class="max-w-3xl mx-auto text-center reveal">
-            <h2 class="font-script text-5xl mb-12 text-amber-100">Our Story</h2>
-            <div class="relative">
-                <div class="absolute left-1/2 h-full w-0.5 bg-slate-700 -translate-x-1/2"></div>
-                <div class="space-y-16">
-                    <div class="relative flex items-center md:justify-start">
-                        <div class="md:w-1/2 md:pr-8">
-                            <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 text-left">
-                                <p class="text-amber-200 font-semibold">Januari 2020</p>
-                                <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3> -->
-    <!-- <h3 class="text-xl font-bold mt-1">Pertemuan Pertama</h3> -->
-    <!-- <p class="text-slate-300 mt-2 text-sm" >Lorem ipsum dolor sit amet consectetur.</p> -->
-    <!-- <p class="text-slate-300 mt-2 text-sm">Cerita singkat bagaimana kami pertama kali
-                                    kami mengenal satu sama lain lewat online Group WhatsApp.</p> -->
-    <!-- </div>
-                        </div>
-                        <div
-                            class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
-                    </div>
-                    <div class="relative flex items-center md:justify-end">
-                        <div class="md:w-1/2 md:pl-8">
-                            <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 text-left">
-                                <p class="text-amber-200 font-semibold">December 2023</p>
-                                <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3> -->
-    <!-- <h3 class="text-xl font-bold mt-1">Saling Curhat</h3> -->
-    <!-- <p class="text-slate-300 mt-2 text-sm" >Lorem ipsum dolor sit amet consectetur.</p> -->
-    <!-- <p class="text-slate-300 mt-2 text-sm">Momen kami dekat adalah saling berbagi cerita dan
-                                    bermain game bareng (Nita curhat aku kasih solusi, walaupun ngga di denger juga gpp
-                                    :) ).</p> -->
-    <!-- </div>
-                        </div>
-                        <div
-                            class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
-                    </div>
-                    <div class="relative flex items-center md:justify-start">
-                        <div class="md:w-1/2 md:pr-8">
-                            <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 text-left">
-                                <p class="text-amber-200 font-semibold">Desember 2024</p> -->
-    <!-- <h3 class="text-xl font-bold mt-1">Awal Bertemu Dengan Orang Tua Nita</h3> -->
-    <!-- <h3 class="text-xl font-bold mt-1">Lorem ipsum dolor sit amet.</h3>
-                                <p class="text-slate-300 mt-2 text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, aperiam.</p> -->
-    <!-- <p class="text-slate-300 mt-2 text-sm">Sebuah kebahagiaan untuk ku seorang laki - laki
-                                    yang memberanikan diri dari Solo - Bogor untuk menemui orang tua Nita secara
-                                    langsung dan memberanikan diri untuk meminta izin menikahi Nita. (Such a gentleman)
-                                    Hahah</p> -->
-    <!-- </div>
-                        </div>
-                        <div
-                            class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-amber-800 rounded-full border-4 border-slate-900">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
-    <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
-    <section id="events" class="py-20 px-6">
+   
+    <section id="events" class="py-20 px-6 bg-secondary">
         <div class="max-w-5xl mx-auto text-center reveal">
             <h2 class="font-script text-5xl mb-12 text-amber-100">Acara</h2>
             <div class="flex flex-col md:flex-row gap-8 justify-center">
-                <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-8 flex-1">
-                    <h3 class="font-script text-4xl mb-6 text-amber-200">Akad Nikah</h3>
-                    <p class="flex items-center justify-center gap-3 mb-3 text-slate-300"><i
-                            class="fa-regular fa-calendar-alt w-4"></i> Senin, 08 June 2026</p>
-                    <p class="flex items-center justify-center gap-3 mb-6 text-slate-300"><i
-                            class="fa-regular fa-clock w-4"></i> 08:00 - 10:00 WIB</p>
-                    <p class="flex items-start justify-center gap-3 text-slate-300"><i
-                            class="fa-solid fa-map-marker-alt w-4 mt-1"></i> Masjid Itu heheh belum tau,<br>Jl. belum
-                        tau</p><a href="#" target="_blank"
-                        class="mt-8 inline-block bg-amber-800 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300">Lihat
-                        Peta</a>
+                <div class="glass-effect p-8 flex-1">
+                    <h3 class="font-script text-4xl mb-6 text-gold-theme">Akad Nikah</h3>
+                    <p class="flex items-center justify-center gap-3 mb-3 text-slate-300"><i class="fa-regular fa-calendar-alt w-4"></i> Senin, 08 June 2026</p>
+                    <p class="flex items-center justify-center gap-3 mb-6 text-slate-300"><i class="fa-regular fa-clock w-4"></i> 08:00 - 10:00 WIB</p>
+                    <p class="flex items-start justify-center gap-3 text-slate-300"><i class="fa-solid fa-map-marker-alt w-4 mt-1"></i> Masjid Itu heheh belum tau,<br>Jl. belum tau</p>
+                    <a href="#" target="_blank" class="mt-8 inline-block btn-gold font-semibold py-2 px-6 rounded-lg">Lihat Peta</a>
                 </div>
-                <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-8 flex-1">
-                    <h3 class="font-script text-4xl mb-6 text-amber-200">Resepsi</h3>
-                    <p class="flex items-center justify-center gap-3 mb-3 text-slate-300"><i
-                            class="fa-regular fa-calendar-alt w-4"></i> Senin, 08 June 2026</p>
-                    <p class="flex items-center justify-center gap-3 mb-6 text-slate-300"><i
-                            class="fa-regular fa-clock w-4"></i> 11:00 - 14:00 WIB</p>
-                    <p class="flex items-start justify-center gap-3 text-slate-300"><i
-                            class="fa-solid fa-map-marker-alt w-4 mt-1"></i> Sama belum tau juga,<br>Jl. belum tau juga
-                        hehehe</p><a href="#" target="_blank"
-                        class="mt-8 inline-block bg-amber-800 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300">Lihat
-                        Peta</a>
+                <div class="glass-effect p-8 flex-1">
+                    <h3 class="font-script text-4xl mb-6 text-gold-theme">Resepsi</h3>
+                    <p class="flex items-center justify-center gap-3 mb-3 text-slate-300"><i class="fa-regular fa-calendar-alt w-4"></i> Senin, 08 June 2026</p>
+                    <p class="flex items-center justify-center gap-3 mb-6 text-slate-300"><i class="fa-regular fa-clock w-4"></i> 11:00 - 14:00 WIB</p>
+                    <p class="flex items-start justify-center gap-3 text-slate-300"><i class="fa-solid fa-map-marker-alt w-4 mt-1"></i> Sama belum tau juga,<br>Jl. belum tau juga hehehe</p>
+                    <a href="#" target="_blank" class="mt-8 inline-block btn-gold font-semibold py-2 px-6 rounded-lg">Lihat Peta</a>
                 </div>
             </div>
         </div>
     </section>
-    <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
+
     <section id="gift" class="py-20 px-6">
         <div class="max-w-2xl mx-auto text-center reveal">
             <h2 class="font-script text-5xl mb-4 text-amber-100">Wedding Gift</h2>
             <p class="text-slate-300 mb-10">Doa restu Kakak adalah hadiah terindah bagi kami. Namun, akan lebih indah
                 lagi jika tanda kasihnya duit :D, kami dengan senang hati menerimanya secara online.</p>
-            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-8 max-w-md mx-auto"><img
+            <div class="glass-effect p-8 max-w-md mx-auto"><img
                     src="images/Logo BCA_Biru.png" alt="Logo Bank BCA" class="h-8 mx-auto mb-4">
                 <p class="text-slate-400 text-sm">Bank Central Asia (BCA)</p>
                 <p class="text-2xl font-bold tracking-widest my-2" id="account-number">3580779351</p>
-                <p class="text-lg text-slate-300">a.n. Musalim Yusuf</p><button id="copy-button"
-                    class="mt-6 bg-amber-800 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full"><i
-                        class="far fa-copy"></i><span id="copy-text">Salin Nomor Rekening</span></button>
+                <p class="text-lg text-slate-300">a.n. Musalim Yusuf</p>
+                <button id="copy-button" class="mt-6 btn-gold font-semibold py-2 px-6 rounded-lg flex items-center justify-center gap-2 w-full">
+                    <i class="far fa-copy"></i>
+                    <span id="copy-text">Salin Nomor Rekening</span>
+                </button>
             </div>
         </div>
     </section>
-    <div class="w-full h-px bg-slate-700 max-w-4xl mx-auto"></div>
-    <section id="rsvp" class="py-20 px-6">
+
+    <section id="rsvp" class="py-20 px-6 bg-secondary">
         <div class="max-w-2xl mx-auto reveal">
             <div class="text-center">
                 <h2 class="font-script text-5xl mb-4 text-amber-100">RSVP & Ucapan</h2>
@@ -406,22 +431,10 @@
                 </p>
             </div>
             <form id="rsvp-form" class="text-left space-y-4" novalidate>
-                <div><label for="name" class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap <span
-                            class="text-red-400">*</span></label><input type="text" id="name" name="name"
-                        class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition"
-                        placeholder="Nama Lengkap Kak" required></div>
-                <div><label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email <span
-                            class="text-red-400">*</span></label><input type="email" id="email" name="email"
-                        class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition"
-                        placeholder="Contoh@email.com" required></div>
-                <div><label for="whatsapp" class="block text-sm font-medium text-slate-300 mb-1">Nomor WhatsApp <span
-                            class="text-red-400">*</span></label><input type="number" id="whatsapp" name="whatsapp"
-                        class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition"
-                        placeholder="08xxxxxxxxxx" required></div>
-                <div><label for="attendance" class="block text-sm font-medium text-slate-300 mb-1">Konfirmasi Kehadiran
-                        <span class="text-red-400">*</span></label><select id="attendance" name="attendance"
-                        class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition"
-                        required>
+                <div><label for="name" class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap <span class="text-red-400">*</span></label><input type="text" id="name" name="name" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition" placeholder="Nama Lengkap Kak" required></div>
+                <div><label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email <span class="text-red-400">*</span></label><input type="email" id="email" name="email" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition" placeholder="Contoh@email.com" required></div>
+                <div><label for="whatsapp" class="block text-sm font-medium text-slate-300 mb-1">Nomor WhatsApp <span class="text-red-400">*</span></label><input type="number" id="whatsapp" name="whatsapp" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition" placeholder="08xxxxxxxxxx" required></div>
+                <div><label for="attendance" class="block text-sm font-medium text-slate-300 mb-1">Konfirmasi Kehadiran <span class="text-red-400">*</span></label><select id="attendance" name="attendance" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition" required>
                         <option value="">-- Pilih Opsi --</option>
                         <option value="Hadir">Hadir</option>
                         <option value="Tidak Hadir">Tidak Hadir</option>
@@ -441,13 +454,14 @@
                         Doa</label><textarea id="wishes" name="wishes" rows="4"
                         class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 transition"
                         placeholder="Tuliskan ucapan dan doa terbaik Kakak... (Opsional)"></textarea></div>
-                <div><button type="submit" id="submit-button"
-                        class="w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 mt-4">Send</button>
+                <div>
+                    <button type="submit" id="submit-button" class="w-full btn-gold font-bold py-3 px-4 rounded-lg mt-4">Send</button>
                 </div>
             </form>
         </div>
     </section>
-    <footer class="bg-slate-900/50 text-center py-12 px-6">
+    
+    <footer class="text-center py-12 px-6">
         <div class="max-w-4xl mx-auto">
             <p class="text-slate-400">Atas kehadiran dan doa restu yang telah diberikan, kami mengucapkan terima kasih
                 yang tulus.</p>
@@ -457,30 +471,39 @@
             </p>
         </div>
     </footer>
+    
+    <div id="ad-toast"></div>
     <div id="toast"></div>
-    <!-- QR Code Modal -->
+
     <div id="qr-modal">
         <div class="bg-slate-800 p-8 rounded-lg text-center shadow-xl max-w-sm w-full mx-4">
             <h3 class="font-script text-3xl text-amber-100 mb-2">Konfirmasi Diterima!</h3>
             <p class="text-slate-300 mb-4">Tunjukan QR Code ini pas mau masuk ya kak ! :D</p>
             <div id="qrcode-container" class="bg-white p-4 rounded-lg inline-block my-4"></div>
-            <p class="text-xs text-slate-500 mt-4">Check email kak atau Screenshot QR Codenya kak, nanti discan di meja registrasi yaa :D.</p><button id="close-modal-btn"
-                class="mt-6 w-full bg-amber-800 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">Close</button>
+            <p class="text-xs text-slate-500 mt-4">Check email kak atau Screenshot QR Codenya kak, nanti discan di meja registrasi yaa :D.</p>
+            <button id="close-modal-btn" class="mt-6 w-full btn-gold font-bold py-2 px-4 rounded-lg">Close</button>
         </div>
     </div>
+    
+    <a id="scrollToTopBtn" class="scroll-to-top-btn">👆</a>
+
 
     <script>
+        // --- SELURUH BLOK SCRIPT DIORGANISIR ULANG DAN DIPERBAIKI ---
+
+        // 1. Deklarasi semua elemen di awal
         const navbar = document.getElementById('navbar');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenuIcon = document.getElementById('mobile-menu-icon');
-        window.onscroll = function () { const e = 50 < document.body.scrollTop || 50 < document.documentElement.scrollTop; navbar.classList.toggle("scrolled", e), mobileMenu.classList.toggle("scrolled", e) }; mobileMenuButton.addEventListener("click", () => { const e = mobileMenu.classList.toggle("hidden"); mobileMenuIcon.classList.toggle("fa-bars", e), mobileMenuIcon.classList.toggle("fa-times", !e) }), document.querySelectorAll("#mobile-menu a, nav a[href='#']").forEach(e => { e.addEventListener("click", () => { mobileMenu.classList.contains("hidden") || (mobileMenu.classList.add("hidden"), mobileMenuIcon.classList.add("fa-bars"), mobileMenuIcon.classList.remove("fa-times")) }) }); const copyButton = document.getElementById("copy-button"), copyText = document.getElementById("copy-text"), accountNumberEl = document.getElementById("account-number"); copyButton.addEventListener("click", () => { const e = accountNumberEl.innerText, t = document.createElement("textarea"); t.value = e, t.style.position = "fixed", t.style.top = "-9999px", t.style.left = "-9999px", document.body.appendChild(t), t.select(); try { document.execCommand("copy") && (copyText.innerText = "Nomor Tersalin!", copyButton.classList.add("bg-green-600"), setTimeout(() => { copyText.innerText = "Salin Nomor Rekening", copyButton.classList.remove("bg-green-600") }, 2e3)) } catch (e) { showToast("Gagal Menyalin", "Nomor rekening gagal disalin.", "error") } document.body.removeChild(t) }); const countdownDate = new Date("Jun 08, 2026 00:00:00").getTime(), countdownInterval = setInterval(function () { const e = (new Date).getTime(), t = countdownDate - e; document.getElementById("days").innerText = Math.floor(t / 864e5), document.getElementById("hours").innerText = Math.floor(t % 864e5 / 36e5), document.getElementById("minutes").innerText = Math.floor(t % 36e5 / 6e4), document.getElementById("seconds").innerText = Math.floor(t % 6e4 / 1e3), t < 0 && (clearInterval(countdownInterval), document.getElementById("countdown").innerHTML = "<p class='text-xl'>The day is here!</p>") }, 1e3); const revealElements = document.querySelectorAll(".reveal"), revealOnScroll = () => { const e = window.innerHeight; revealElements.forEach(t => { t.getBoundingClientRect().top < e - 100 && t.classList.add("visible") }) }; window.addEventListener("scroll", revealOnScroll), revealOnScroll();
-
-
+        const copyButton = document.getElementById("copy-button");
+        const copyText = document.getElementById("copy-text");
+        const accountNumberEl = document.getElementById("account-number");
+        const revealElements = document.querySelectorAll(".reveal");
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
         const rsvpForm = document.getElementById('rsvp-form');
         const attendanceSelect = document.getElementById('attendance');
         const guestCountWrapper = document.getElementById('guest-count-wrapper');
-        const guestCountSelect = document.getElementById('guest_count');
         const submitButton = document.getElementById('submit-button');
         const toastElement = document.getElementById('toast');
         const qrModal = document.getElementById('qr-modal');
@@ -488,8 +511,80 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         let toastTimeout;
 
+        const adToastElement = document.getElementById('ad-toast');
 
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKzMtWNH_cgKKfynWuQoYs35yl8druPP-qAOQfPdTCvem-HG4JMsSNfymq2Fq04NA5/exec";
+
+        // 2. Logika untuk event listener
+        mobileMenuButton.addEventListener("click", () => {
+            const isHidden = mobileMenu.classList.toggle("hidden");
+            mobileMenuIcon.classList.toggle("fa-bars", isHidden);
+            mobileMenuIcon.classList.toggle("fa-times", !isHidden);
+        });
+
+        document.querySelectorAll("#mobile-menu a, nav a[href^='#']").forEach(link => {
+            link.addEventListener("click", () => {
+                if (!mobileMenu.classList.contains("hidden")) {
+                    mobileMenu.classList.add("hidden");
+                    mobileMenuIcon.classList.add("fa-bars");
+                    mobileMenuIcon.classList.remove("fa-times");
+                }
+            });
+        });
+
+        copyButton.addEventListener("click", () => {
+            const textToCopy = accountNumberEl.innerText;
+            const tempTextarea = document.createElement("textarea");
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand("copy");
+                copyText.innerText = "Nomor Tersalin!";
+                copyButton.classList.add("success");
+                setTimeout(() => {
+                    copyText.innerText = "Salin Nomor Rekening";
+                    copyButton.classList.remove("success");
+                }, 2000);
+            } catch (err) {
+                showToast("Gagal Menyalin", "Nomor rekening gagal disalin.", "error");
+            }
+            document.body.removeChild(tempTextarea);
+        });
+
+        const countdownDate = new Date("Jun 08, 2026 00:00:00").getTime();
+        const countdownInterval = setInterval(function () {
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").innerHTML = "<p class='text-xl'>The day is here!</p>";
+            }
+        }, 1000);
+
+        const handleScroll = () => {
+            const isScrolled = document.body.scrollTop > 50 || document.documentElement.scrollTop > 50;
+            const windowHeight = window.innerHeight;
+            navbar.classList.toggle("scrolled", isScrolled);
+            mobileMenu.classList.toggle("scrolled", isScrolled);
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                el.classList.toggle("visible", elementTop < windowHeight - 100);
+            });
+            scrollToTopBtn.classList.toggle('show', isScrolled);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        document.addEventListener("DOMContentLoaded", handleScroll);
+
+        scrollToTopBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         function showToast(title, message, type = 'success') {
             clearTimeout(toastTimeout);
@@ -500,58 +595,85 @@
             toastTimeout = setTimeout(() => { toastElement.classList.remove('show'); }, 8000);
         }
 
+        // --- LOGIKA BARU UNTUK TOAST IKLAN INTERAKTIF ---
+        function showAdToast() {
+            if (adToastElement.classList.contains('show')) return;
+
+            adToastElement.innerHTML = `
+                <i class="fas fa-bullhorn ad-icon"></i>
+                <div>
+                    <p class="font-bold">Ingin membuat website seperti ini ?</p>
+                    <p class="text-sm">Hubungi Liem via WA: 087725995018 atau klik iklan ini :)</p>
+                </div>
+                <button id="ad-toast-close" class="ad-toast-close-btn">&times;</button>
+            `;
+            adToastElement.classList.add('show');
+            
+            // Tambahkan event listener untuk tombol close
+            document.getElementById('ad-toast-close').addEventListener('click', (e) => {
+                e.stopPropagation(); // Mencegah link WA terbuka saat tombol close diklik
+                adToastElement.classList.remove('show');
+            });
+        }
+
+        // Event listener untuk seluruh toast iklan agar mengarah ke WA
+        adToastElement.addEventListener('click', () => {
+            // Ganti 62... dengan nomor WhatsApp yang benar
+            window.open('https://wa.me/6287725995018', '_blank');
+        });
+        
+        // Jalankan iklan pertama kali setelah 30 detik
+        setTimeout(showAdToast, 30000); 
+        // Jalankan iklan berulang setiap 1 menit
+        setInterval(showAdToast, 60000);
+
+
         attendanceSelect.addEventListener('change', function () {
             guestCountWrapper.classList.toggle('hidden', this.value !== 'Hadir');
         });
 
         rsvpForm.addEventListener('submit', function (e) {
             e.preventDefault();
-
-            if (this.checkValidity() === false) {
+            if (!this.checkValidity()) {
                 showToast('Wahh Gagal nih', 'Diisi dulu ya form nya ga ribet kok heheh.', 'error');
                 return;
             }
-
             submitButton.disabled = true;
             submitButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sabar kak bentar...`;
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+            const formData = new FormData(rsvpForm);
             const guestId = "LN-" + Date.now();
-            data.guestId = guestId;
+            formData.append('guestId', guestId);
 
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: formData
             })
-                .then(res => {
-                    if (data.attendance === 'Hadir') {
-                        const message = `QR Code juga udah dikirim ke <strong>${data.email}</strong> yaaa, check langsung deh.`;
-                        showToast('YEYYYY Thank you!', message);
-                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(guestId)}`;
-                        qrCodeContainer.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-                        qrModal.classList.add('show');
-                    } else {
-
-                        showToast(
-                            'Terimakasih Kak !',
-                            'Yahh Kenapa tidak hadir ? aku nikah sekali doang lohhh hihihi',
-                            'success'
-                        );
-                    }
-                    rsvpForm.reset();
-                    guestCountWrapper.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    showToast('Gagal', 'Bentar kak ada kesalahan. Coba lagi kak.', 'error');
-                })
-                .finally(() => {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Kirim Konfirmasi';
-                });
+            .then(res => res.json())
+            .then(serverData => {
+                 if (serverData.status === 'success') {
+                    const email = formData.get('email');
+                    const message = `QR Code juga udah dikirim ke <strong>${email}</strong> yaaa, check langsung deh.`;
+                    showToast('YEYYYY Thank you!', message);
+                    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(serverData.guestId)}`;
+                    qrCodeContainer.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
+                    qrModal.classList.add('show');
+                } else if (serverData.status === 'success_not_attending') {
+                    showToast('Terimakasih Kak !', 'Yahh Kenapa tidak hadir ? aku nikah sekali doang lohhh hihihi', 'success');
+                } else {
+                    showToast('Gagal', serverData.message || 'Terjadi kesalahan pada server.', 'error');
+                }
+                rsvpForm.reset();
+                guestCountWrapper.classList.add('hidden');
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                showToast('Gagal', 'Bentar kak ada kesalahan jaringan. Coba lagi kak.', 'error');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send';
+            });
         });
 
         closeModalBtn.addEventListener('click', () => { qrModal.classList.remove('show'); });
